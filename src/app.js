@@ -10,6 +10,8 @@ const ordererPort = process.env.ORDERER_PORT || 7050
 const peerOrgName = toPascalCase(process.env.PEER_ORG_NAME)
 const peerOrgAdminCert = process.env.PEER_ORG_ADMIN_CERT
 const peerOrgCACert = process.env.PEER_ORG_CA_CERT
+const peerWorkerNodeIP = process.env.PEER_WORKERNODE_IP
+const peerAnchorPort = process.env.PEER_ANCHOR_PORT
 
 if(!fs.existsSync(shareFileDir + "initCompleted")) {
   const cryptoConfigYaml = `
@@ -39,6 +41,9 @@ if(!fs.existsSync(shareFileDir + "initCompleted")) {
         Name: ${peerOrgName}
         ID: ${peerOrgName}
         MSPDir: crypto-config/peerOrganizations/peer.${peerOrgName.toLowerCase()}.com/msp
+        AnchorPeers:
+          - Host: ${peerWorkerNodeIP}
+            Port: ${peerAnchorPort}
   
     Channel: &ChannelDefaults
       Policies:
