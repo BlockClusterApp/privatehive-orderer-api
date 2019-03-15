@@ -13,7 +13,7 @@ const peerOrgCACert = process.env.PEER_ORG_CA_CERT
 const peerWorkerNodeIP = process.env.PEER_WORKERNODE_IP
 const peerAnchorPort = process.env.PEER_ANCHOR_PORT
 
-if(!fs.existsSync(shareFileDir + "initCompleted")) {
+if(!fs.existsSync(shareFileDir + "/initCompleted")) {
   const cryptoConfigYaml = `
     OrdererOrgs:
     - Name: ${orgName}
