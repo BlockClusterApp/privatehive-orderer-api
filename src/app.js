@@ -61,7 +61,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
       OneOrgGenesis:
         <<: *ChannelDefaults
         Orderer:
-          OrdererType: solo
+          OrdererType: kafka
           Addresses:
               - ${workerNodeIP}:${ordererPort}
           BatchTimeout: 2s
@@ -69,6 +69,11 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               MaxMessageCount: 10
               AbsoluteMaxBytes: 98 MB
               PreferredMaxBytes: 512 KB
+          Kafka:
+            Brokers:
+                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.dev.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.dev.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.dev.svc.cluster.local:9093
           Organizations:
             - *${orgName}Orderer
         Consortiums:
@@ -80,7 +85,6 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
         Application:
             Organizations:
                 - *${peerOrgName}
-
   `
 
   fs.writeFileSync('./configtx.yaml', configTxYaml)
