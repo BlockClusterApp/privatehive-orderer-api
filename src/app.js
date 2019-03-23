@@ -12,6 +12,7 @@ const peerOrgAdminCert = process.env.PEER_ORG_ADMIN_CERT
 const peerOrgCACert = process.env.PEER_ORG_CA_CERT
 const peerWorkerNodeIP = process.env.PEER_WORKERNODE_IP
 const peerAnchorPort = process.env.PEER_ANCHOR_PORT
+const kafkaNamespace = process.env.KAFKA_NAMESPACE;
 
 if(!fs.existsSync(shareFileDir + "/initCompleted")) {
   const cryptoConfigYaml = `
@@ -71,9 +72,9 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               PreferredMaxBytes: 512 KB
           Kafka:
             Brokers:
-                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.dev.svc.cluster.local:9093
-                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.dev.svc.cluster.local:9093
-                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.dev.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${kafkaNamespace}.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${kafkaNamespace}.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${kafkaNamespace}.svc.cluster.local:9093
           Organizations:
             - *${orgName}Orderer
         Consortiums:
