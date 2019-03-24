@@ -2,6 +2,9 @@ const shell = require('shelljs')
 const toPascalCase = require('to-pascal-case')
 const fs = require('fs')
 const app = require('express')()
+const MongoClient = require("mongodb").MongoClient
+const Config = require('./config');
+const isPortReachable = require('is-port-reachable');
 
 const orgName = toPascalCase(process.env.ORG_NAME)
 const shareFileDir = process.env.SHARE_FILE_DIR || './crypto' //Make it /etc/hyperledger during deployment
@@ -12,7 +15,46 @@ const peerOrgAdminCert = process.env.PEER_ORG_ADMIN_CERT
 const peerOrgCACert = process.env.PEER_ORG_CA_CERT
 const peerWorkerNodeIP = process.env.PEER_WORKERNODE_IP
 const peerAnchorPort = process.env.PEER_ANCHOR_PORT
-const kafkaNamespace = process.env.KAFKA_NAMESPACE;
+const namespace = process.env.NAMESPACE;
+
+async function updateStatus() {
+  return new Promise((resolve, reject) => {
+    MongoClient.connect(
+      Config.getMongoConnectionString(),
+      {
+        reconnectTries: Number.MAX_VALUE,
+        autoReconnect: true,
+        useNewUrlParser: true
+      },
+      function(err, database) {
+        if (!err) {
+          let db = database.db(Config.getDatabase());
+          db.collection("privatehiveOrderers").updateOne(
+            { instanceId: orgName.toLowerCase() },
+            { $set: { status: "running" } },
+            function(err, res) {
+              if(err) {
+                reject()
+              } else {
+                resolve()
+              }
+            }
+          );
+        } else {
+          reject()
+        }
+      }
+    );
+  })
+}
+
+async function checkIfOrdererReachable() {
+  if(await isPortReachable(7050, {host: 'localhost'}) !== true) {
+    setTimeout(checkIfOrdererReachable, 5000);
+  } else {
+    await updateStatus()
+  }
+}
 
 if(!fs.existsSync(shareFileDir + "/initCompleted")) {
   const cryptoConfigYaml = `
@@ -72,9 +114,9 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               PreferredMaxBytes: 512 KB
           Kafka:
             Brokers:
-                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${kafkaNamespace}.svc.cluster.local:9093
-                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${kafkaNamespace}.svc.cluster.local:9093
-                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${kafkaNamespace}.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
           Organizations:
             - *${orgName}Orderer
         Consortiums:
@@ -92,6 +134,8 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
   shell.exec('FABRIC_CFG_PATH=$PWD configtxgen -profile OneOrgGenesis -outputBlock ./genesis.block')
 
   fs.writeFileSync('./initCompleted', "initCompleted")
+
+  setTimeout(checkIfOrdererReachable, 1000);
 }
 
 app.listen(3000, () => console.log('API Server Running'))

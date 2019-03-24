@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "express": "^4.16.4",
+    "is-port-reachable": "^2.0.0",
+    "mongodb": "^3.2.2",
     "shelljs": "^0.8.3",
     "to-pascal-case": "^1.0.0"
   }
