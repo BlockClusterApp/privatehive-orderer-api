@@ -7,6 +7,6 @@ curl -X POST \
   -H "authorization: ${NETWORK_UPDATE_ID}:${NETWORK_UPDATE_KEY}" \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/x-www-form-urlencoded' \
-  -d "container=privatehive-peer&imageTag=${NODE_ENV}-${COMMIT_HASH}"
+  -d "container=privatehive-orderer&imageTag=${NODE_ENV}-${COMMIT_HASH}"
 
 exit 0;
