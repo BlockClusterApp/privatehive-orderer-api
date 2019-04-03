@@ -49,7 +49,7 @@ async function updateStatus() {
 }
 
 async function checkIfOrdererReachable() {
-  
+  console.log(`zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`)
   console.log(
     await isPortReachable(7050, {host: 'localhost'}),
     await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}),
