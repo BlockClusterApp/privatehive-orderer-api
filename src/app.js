@@ -61,17 +61,17 @@ async function checkIfOrdererReachable() {
   )
 
   if(
-    await isPortReachable(7050, {host: 'localhost'}) === false || 
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === false) ||
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-1.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === false) ||
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-2.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === false) ||
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === false) ||
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === false) ||
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === false)
+    await isPortReachable(7050, {host: 'localhost'}) === true && 
+    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true) &&
+    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-1.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true) &&
+    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-2.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true) &&
+    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true) &&
+    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true) &&
+    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true)
   ) {
-    setTimeout(checkIfOrdererReachable, 5000);
-  } else {
     await updateStatus()
+  } else {
+    setTimeout(checkIfOrdererReachable, 5000);
   }
 }
 
