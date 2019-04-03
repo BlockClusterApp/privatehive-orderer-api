@@ -49,17 +49,6 @@ async function updateStatus() {
 }
 
 async function checkIfOrdererReachable() {
-  console.log(`zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`)
-  console.log(
-    await isPortReachable(7050, {host: 'localhost'}),
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}),
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-1.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}),
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-2.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}),
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}),
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}),
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`})
-  )
-
   if(
     await isPortReachable(7050, {host: 'localhost'}) === true && 
     await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`} === true) &&
