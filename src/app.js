@@ -56,7 +56,8 @@ async function checkIfOrdererReachable() {
     await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-2.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
     await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
     await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true
+    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
+    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-3.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true
   ) {
     await updateStatus()
   } else {
@@ -125,6 +126,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
                 - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
                 - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
                 - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+                - kafka-${orgName.toLowerCase()}-3.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
           Organizations:
             - *${orgName}Orderer
         Consortiums:
