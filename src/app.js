@@ -113,13 +113,13 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
         <<: *ChannelDefaults
         Orderer:
           OrdererType: solo
-          #Addresses:
-          #    - ${workerNodeIP}:${ordererPort}
-          #BatchTimeout: 2s
-          #BatchSize:
-          #    MaxMessageCount: 10
-          #    AbsoluteMaxBytes: 98 MB
-          #    PreferredMaxBytes: 512 KB
+          Addresses:
+              - ${workerNodeIP}:${ordererPort}
+          BatchTimeout: 2s
+          BatchSize:
+              MaxMessageCount: 10
+              AbsoluteMaxBytes: 98 MB
+              PreferredMaxBytes: 512 KB
           #Kafka:
           #  Brokers:
           #      - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
