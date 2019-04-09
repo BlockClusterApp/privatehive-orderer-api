@@ -112,7 +112,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
       OneOrgGenesis:
         <<: *ChannelDefaults
         Orderer:
-          OrdererType: solo
+          OrdererType: kafka
           Addresses:
               - ${workerNodeIP}:${ordererPort}
           BatchTimeout: 2s
@@ -120,11 +120,11 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               MaxMessageCount: 10
               AbsoluteMaxBytes: 98 MB
               PreferredMaxBytes: 512 KB
-          #Kafka:
-          #  Brokers:
-          #      - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
-          #      - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
-          #      - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
+          Kafka:
+            Brokers:
+                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
+                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
+                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9092
           Organizations:
             - *${orgName}Orderer
         Consortiums:
