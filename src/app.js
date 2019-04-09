@@ -15,7 +15,8 @@ const peerOrgAdminCert = process.env.PEER_ORG_ADMIN_CERT
 const peerOrgCACert = process.env.PEER_ORG_CA_CERT
 const peerWorkerNodeIP = process.env.PEER_WORKERNODE_IP
 const peerAnchorPort = process.env.PEER_ANCHOR_PORT
-const namespace = process.env.NAMESPACE;
+const namespace = process.env.NAMESPACE
+const ordererType = process.env.ORDERER_TYPE
 
 async function updateStatus() {
   return new Promise((resolve, reject) => {
@@ -49,18 +50,28 @@ async function updateStatus() {
 }
 
 async function checkIfOrdererReachable() {
-  if(
-    await isPortReachable(7050, {host: 'localhost'}) === true && 
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-1.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
-    await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-2.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
-    await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true
-  ) {
-    await updateStatus()
+  if(ordererType === 'kafka') {
+    if(
+      await isPortReachable(7050, {host: 'localhost'}) === true && 
+      await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-0.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
+      await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-1.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
+      await isPortReachable(2181, {host: `zk-${orgName.toLowerCase()}-2.zk-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
+      await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
+      await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true &&
+      await isPortReachable(9093, {host: `kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local`}) === true
+    ) {
+      await updateStatus()
+    } else {
+      setTimeout(checkIfOrdererReachable, 5000);
+    }
   } else {
-    setTimeout(checkIfOrdererReachable, 5000);
+    if(
+      await isPortReachable(7050, {host: 'localhost'}) === true
+    ) {
+      await updateStatus()
+    } else {
+      setTimeout(checkIfOrdererReachable, 5000);
+    }
   }
 }
 
@@ -81,6 +92,18 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
   shell.mkdir('-p', `crypto-config/peerOrganizations/peer.${peerOrgName.toLowerCase()}.com/msp/cacerts/`)
   fs.writeFileSync(`crypto-config/peerOrganizations/peer.${peerOrgName.toLowerCase()}.com/msp/admincerts/Admin@peer.${peerOrgName.toLowerCase()}.com-cert.pem`, peerOrgAdminCert)
   fs.writeFileSync(`crypto-config/peerOrganizations/peer.${peerOrgName.toLowerCase()}.com/msp/cacerts/ca.peer.${peerOrgName.toLowerCase()}.com-cert.pem`, peerOrgCACert)
+
+  let kafkaConfig = ''
+
+  if(ordererType === 'kafka') {
+    kafkaConfig = `
+    Kafka:
+    Brokers:
+        - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+        - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+        - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+    ` 
+  }
 
   const configTxYaml = `
     Organizations:
@@ -112,7 +135,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
       OneOrgGenesis:
         <<: *ChannelDefaults
         Orderer:
-          OrdererType: kafka
+          OrdererType: ${ordererType}
           Addresses:
               - ${workerNodeIP}:${ordererPort}
           BatchTimeout: 2s
@@ -120,11 +143,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               MaxMessageCount: 10
               AbsoluteMaxBytes: 98 MB
               PreferredMaxBytes: 512 KB
-          Kafka:
-            Brokers:
-                - kafka-${orgName.toLowerCase()}-0.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
-                - kafka-${orgName.toLowerCase()}-1.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
-                - kafka-${orgName.toLowerCase()}-2.kafka-svc-${orgName.toLowerCase()}.${namespace}.svc.cluster.local:9093
+          ${kafkaConfig}
           Organizations:
             - *${orgName}Orderer
         Consortiums:
