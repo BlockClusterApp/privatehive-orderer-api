@@ -17,6 +17,7 @@ const peerWorkerNodeIP = process.env.PEER_WORKERNODE_IP
 const peerAnchorPort = process.env.PEER_ANCHOR_PORT
 const namespace = process.env.NAMESPACE
 const ordererType = process.env.ORDERER_TYPE
+const instanceId = process.env.INSTANCE_ID
 
 async function updateStatus() {
   return new Promise((resolve, reject) => {
@@ -31,7 +32,7 @@ async function updateStatus() {
         if (!err) {
           let db = database.db(Config.getDatabase());
           db.collection("privatehiveOrderers").updateOne(
-            { instanceId: orgName.toLowerCase() },
+            { instanceId: instanceId },
             { $set: { status: "running" } },
             function(err, res) {
               if(err) {
@@ -107,9 +108,9 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
 
   const configTxYaml = `
     Organizations:
-      - &${orgName}Orderer 
-        Name: ${orgName}Orderer
-        ID: ${orgName}Orderer
+      - &${orgName} 
+        Name: ${orgName}
+        ID: ${orgName}
         MSPDir: crypto-config/ordererOrganizations/orderer.${orgName.toLowerCase()}.com/msp
       - &${peerOrgName}
         Name: ${peerOrgName}
@@ -145,7 +146,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               PreferredMaxBytes: 512 KB
           ${kafkaConfig}
           Organizations:
-            - *${orgName}Orderer
+            - *${orgName}
         Consortiums:
           SingleMemberConsortium:
               Organizations:
