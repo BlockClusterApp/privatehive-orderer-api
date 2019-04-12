@@ -107,9 +107,9 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
 
   const configTxYaml = `
     Organizations:
-      - &${orgName}Orderer 
-        Name: ${orgName}Orderer
-        ID: ${orgName}Orderer
+      - &${orgName} 
+        Name: ${orgName}
+        ID: ${orgName}
         MSPDir: crypto-config/ordererOrganizations/orderer.${orgName.toLowerCase()}.com/msp
       - &${peerOrgName}
         Name: ${peerOrgName}
@@ -145,7 +145,7 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
               PreferredMaxBytes: 512 KB
           ${kafkaConfig}
           Organizations:
-            - *${orgName}Orderer
+            - *${orgName}
         Consortiums:
           SingleMemberConsortium:
               Organizations:
