@@ -119,7 +119,28 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
         AnchorPeers:
           - Host: ${peerWorkerNodeIP}
             Port: ${peerAnchorPort}
-  
+    Capabilities:
+      Channel: &ChannelCapabilities
+        V1_3: true
+      Orderer: &OrdererCapabilities
+        V1_1: true
+      Application: &ApplicationCapabilities
+        V1_3: true
+        V1_2: false
+        V1_1: false
+
+    Orderer: &OrdererDefaults
+      OrdererType: ${ordererType}
+      Addresses:
+          - ${workerNodeIP}:${ordererPort}
+      BatchTimeout: 2s
+      BatchSize:
+          MaxMessageCount: 10
+          AbsoluteMaxBytes: 98 MB
+          PreferredMaxBytes: 512 KB
+      ${kafkaConfig}
+      Organizations:
+    
     Channel: &ChannelDefaults
       Policies:
         Readers:
@@ -131,22 +152,18 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
         Admins:
           Type: ImplicitMeta
           Rule: "ANY Admins"
+      Capabilities:
+        <<: *ChannelCapabilities
 
     Profiles:
       OneOrgGenesis:
         <<: *ChannelDefaults
         Orderer:
-          OrdererType: ${ordererType}
-          Addresses:
-              - ${workerNodeIP}:${ordererPort}
-          BatchTimeout: 2s
-          BatchSize:
-              MaxMessageCount: 10
-              AbsoluteMaxBytes: 98 MB
-              PreferredMaxBytes: 512 KB
-          ${kafkaConfig}
+          <<: *OrdererDefaults
           Organizations:
             - *${orgName}
+          Capabilities:
+            <<: *OrdererCapabilities
         Consortiums:
           SingleMemberConsortium:
               Organizations:
@@ -156,6 +173,9 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
         Application:
             Organizations:
                 - *${peerOrgName}
+            Capabilities:
+              <<: *ApplicationCapabilities
+
   `
 
   fs.writeFileSync('./configtx.yaml', configTxYaml)
