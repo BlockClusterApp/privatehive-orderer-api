@@ -124,10 +124,6 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
         V1_3: true
       Orderer: &OrdererCapabilities
         V1_1: true
-      Application: &ApplicationCapabilities
-        V1_3: true
-        V1_2: false
-        V1_1: false
 
     Orderer: &OrdererDefaults
       OrdererType: ${ordererType}
@@ -140,6 +136,19 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
           PreferredMaxBytes: 512 KB
       ${kafkaConfig}
       Organizations:
+      Policies:
+        Readers:
+          Type: ImplicitMeta
+          Rule: ANY Readers
+        Writers:
+          Type: ImplicitMeta
+          Rule: ANY Writers
+        Admins:
+          Type: ImplicitMeta
+          Rule: ANY Admins
+        BlockValidation:
+          Type: ImplicitMeta
+          Rule: ANY Writers
     
     Channel: &ChannelDefaults
       Policies:
@@ -168,14 +177,6 @@ if(!fs.existsSync(shareFileDir + "/initCompleted")) {
           SingleMemberConsortium:
               Organizations:
                 - *${peerOrgName}
-      OneOrgChannel:
-        Consortium: SingleMemberConsortium
-        Application:
-            Organizations:
-                - *${peerOrgName}
-            Capabilities:
-              <<: *ApplicationCapabilities
-
   `
 
   fs.writeFileSync('./configtx.yaml', configTxYaml)
