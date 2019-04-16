@@ -12,7 +12,7 @@ MongoClient.connect(
   function(err, database) {
     if (!err) {
       let db = database.db(Config.getDatabase());
-      db.collection("privatehivePeers").updateOne(
+      db.collection("privatehiveOrderers").updateOne(
         { instanceId: instanceId },
         { $set: { status: "down" } },
         function(err, res) {
